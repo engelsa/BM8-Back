@@ -1,11 +1,12 @@
 import os
 import sqlite3
 
-from flask import Flask
+from flask import *
+
+app = Flask(__name__, instance_relative_config=True)
 
 
-def create_app():
-    app = Flask(__name__, instance_relative_config=True)
+def config_app():
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite')
@@ -16,8 +17,14 @@ def create_app():
     except OSError:
         pass
 
-    @app.route('/hello')
-    def hello():
-        return "Hello world!"
 
-    return app
+@app.route('/hello')
+def hello():
+    connection = sqlite3.connect('data.db')
+    connection.execute('')
+    return "Hello world!"
+
+
+if __name__ == '__main__':
+    config_app()
+    app.run()
