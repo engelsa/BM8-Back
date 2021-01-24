@@ -1,7 +1,9 @@
 import os
 import sqlite3
 import json
+import ssl
 
+from flask_cors import CORS
 from flask import *
 
 app = Flask(__name__, instance_relative_config=True)
@@ -95,49 +97,73 @@ def get_stats_city(city,state,cursor,query):
         return None
     
 
-
-
-@app.route('/get-city')
+@app.route('/get-city', methods=['GET', 'POST'])
 def get_city():
+    '''
+    cost: cost of living
+    age: age
+    crime: homicide rate
+    income: household income
+    travel_time: mean travel time for commute
+    employment: employment rate/percentage
+    disability: disability
+    education: education spending/student
+    airport: distance to airport
+    transportation: commute miles
+    in_tax: income tax
+    climate: climate
+    '''
+    print('=====================================================')
+    #print(temp['query', default={}, type=dict))
+    temp = request.get_json()
+    print(temp)
     parameters = {
         "cost": {
-            "importance": 50
+            "quantity": temp['cost_val'],
+            "importance": temp['cost_imp']
         },
         "age": {
-            "quantity": 25,
-            "importance": 30
+            "quantity": temp['age_val'],
+            "importance": temp['age_imp']
         },
         "crime": {
-            "importance": 80
+            "importance": temp['crime_imp']
         },
         "income": {
-            "importance": 90
+            "quantity": temp['house_val'],
+            "importance": temp['house_imp']
         },
         "travel_time": {
-            "importance": 30
+            "quantity": temp['travel_time_val'],
+            "importance": temp['travel_time_imp']
         },
         "employment": {
-            "importance": 95
+            "quantity": temp['employment_val'],
+            "importance": temp['employment_imp']
         },
         "disability": {
-            "importance": 10
+            "importance": temp['disability_imp']
         },
         "education": {
-            "importance": 90
+            "quantity": temp['edu_val'],
+            "importance": temp['edu_imp']
         },
         "airport": {
-            "importance": 25
+            "quantity": temp['airport_val'],
+            "importance": temp['airport_imp']
         },
         "transportation": {
-            "importance": 100
+            "quantity": temp['dist_val'],
+            "importance": temp['dist_imp']
         },
         "in_tax": {
-            "importance": 25
+            "quantity": temp['income_val'],
+            "importance": temp['income_imp']
         },
         "climate": {
-            "high": 120,
-            "low": 70,
-            "importance": 100
+            "high": temp['climate_high'],
+            "low": temp['climate_low'],
+            "importance": temp['climate_imp']
         }
     }
 
@@ -192,8 +218,6 @@ def get_city():
     results = ""
     cities_found = []
     for row in cursor.fetchall():
-        # rows_found.append(row)
-        # if (row not in rows_found):
         city = row[0]+","+row[1]
         if (city not in cities_found):
             cities_found.append(city)
@@ -250,7 +274,7 @@ def get_city():
 
     return json.dumps(results_json,indent = 2, separators=(',', ': '));
 
-
 if __name__ == '__main__':
     config_app()
-    app.run(debug=True)
+    CORS(app)
+    app.run()
