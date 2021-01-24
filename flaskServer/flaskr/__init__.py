@@ -79,48 +79,69 @@ def config_app():
 def get_stats_city(city,state,cursor):
     state_abbrev = us_state_abbrev[state]
     
-
 @app.route('/get-city')
 def get_city():
+    '''
+    cost: cost of living
+    age: age
+    crime: homicide rate
+    income: household income
+    travel_time: mean travel time for commute
+    employment: employment rate/percentage
+    disability: disability
+    education: education spending/student
+    airport: distance to airport
+    transportation: commute miles
+    in_tax: income tax
+    climate: climate
+    '''
     parameters = {
         "cost": {
-            "importance": 50
+            "quantity": request.args.get('cost_val', default=0, type=int),
+            "importance": request.args.get('cost_imp', default=0, type=int)
         },
         "age": {
-            "quantity": 25,
-            "importance": 30
+            "quantity": request.args.get('age_val', default=0.0, type=float),
+            "importance": request.args.get('age_imp', default=0, type=int)
         },
         "crime": {
-            "importance": 80
+            "importance": request.args.get('crime_imp', default=0, type=int)
         },
         "income": {
-            "importance": 90
+            "quantity": request.args.get('house_val', default=100000, type=int),
+            "importance": request.args.get('house_imp', default=0, type=int)
         },
         "travel_time": {
-            "importance": 30
+            "quantity": request.args.get('travel_time_val', default=10.0, type=float),
+            "importance": request.args.get('travel_time_imp', default=0, type=int)
         },
         "employment": {
-            "importance": 95
+            "quantity": request.args.get('employment_val', default=10.0, type=float),
+            "importance": request.args.get('employment_imp', default=0, type=int)
         },
         "disability": {
-            "importance": 10
+            "importance": request.args.get('diability_imp', default=0, type=int)
         },
         "education": {
-            "importance": 90
+            "quantity": request.args.get('edu_val', default=1500.0, type=float),
+            "importance": request.args.get('edu_imp', default=0, type=int)
         },
         "airport": {
-            "importance": 25
+            "quantity": request.args.get('airport_val', default=0, type=int),
+            "importance": request.args.get('airport_imp', default=0, type=int)
         },
         "transportation": {
-            "importance": 100
+            "quantity": request.args.get('dist_val', default=0, type=int),
+            "importance": request.args.get('dist_imp', default=0, type=int)
         },
         "in_tax": {
-            "importance": 25
+            "quantity": request.args.get('income_val', default=0.0, type=float),
+            "importance": request.args.get('income_imp', default=0, type=int)
         },
         "climate": {
-            "high": 120,
-            "low": 70,
-            "importance": 100
+            "high": request.args.get('climate_high', default=0, type=int),
+            "low": request.args.get('climate_low', default=0, type=int),
+            "importance": request.args.get('climate_imp', default=0, type=int)
         }
     }
 
@@ -175,22 +196,22 @@ def get_city():
 
     cursor.execute(query)
     results = ""
-    cities_found = []
+    #cities_found = []
     for row in cursor.fetchall():
-        #results += str(row) + '\n'
+        results += str(row) + '\n'
         #if (row not in rows_found):
-        city = row[0]+", "+row[1]
+        #city = row[0]+", "+row[1]
 
-        if (city not in cities_found):
-            cities_found.append(city)
-            results += str(row) + "\n"
+        #if (city not in cities_found):
+        #    cities_found.append(city)
+        #    results += str(row) + "\n"
     
-    results_json = {
-        "cities": cities_found[:10]
-    }
+    #results_json = {
+    #    "cities": cities_found[:10]
+    #}
 
-    return json.dumps(results_json);
-    #return results
+    #return json.dumps(results_json);
+    return results
 
 if __name__ == '__main__':
     config_app()
