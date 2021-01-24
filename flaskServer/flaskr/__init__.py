@@ -116,9 +116,10 @@ def get_city():
     results = ""
     cities_found = []
     for row in cursor.fetchall():
-        # rows_found.append(row)
-        # if (row not in rows_found):
-        city = row[0]+" "+row[1]
+        #results += str(row) + '\n'
+        #if (row not in rows_found):
+        city = row[0]+", "+row[1]
+
         if (city not in cities_found):
             cities_found.append(city)
             results += str(row) + "\n"
@@ -128,7 +129,7 @@ def get_city():
     }
 
     return json.dumps(results_json);
-
+    #return results
 
 if __name__ == '__main__':
     config_app()
