@@ -79,7 +79,7 @@ def config_app():
 def get_stats_city(city,state,cursor):
     state_abbrev = us_state_abbrev[state]
     
-@app.route('/get-city')
+@app.route('/get-city', methods=['GET', 'POST'])
 def get_city():
     '''
     cost: cost of living
@@ -95,53 +95,57 @@ def get_city():
     in_tax: income tax
     climate: climate
     '''
+    print('=====================================================')
+    #print(temp['query', default={}, type=dict))
+    temp = request.get_json()
+    print(temp)
     parameters = {
         "cost": {
-            "quantity": request.args.get('cost_val', default=0, type=int),
-            "importance": request.args.get('cost_imp', default=0, type=int)
+            "quantity": temp['cost_val'],
+            "importance": temp'cost_imp']
         },
         "age": {
-            "quantity": request.args.get('age_val', default=0.0, type=float),
-            "importance": request.args.get('age_imp', default=0, type=int)
+            "quantity": temp['age_val'],
+            "importance": temp['age_imp']
         },
         "crime": {
-            "importance": request.args.get('crime_imp', default=0, type=int)
+            "importance": temp['crime_imp']
         },
         "income": {
-            "quantity": request.args.get('house_val', default=100000, type=int),
-            "importance": request.args.get('house_imp', default=0, type=int)
+            "quantity": temp['house_val'],
+            "importance": temp['house_imp']
         },
         "travel_time": {
-            "quantity": request.args.get('travel_time_val', default=10.0, type=float),
-            "importance": request.args.get('travel_time_imp', default=0, type=int)
+            "quantity": temp['travel_time_val'],
+            "importance": temp['travel_time_imp']
         },
         "employment": {
-            "quantity": request.args.get('employment_val', default=10.0, type=float),
-            "importance": request.args.get('employment_imp', default=0, type=int)
+            "quantity": temp['employment_val'],
+            "importance": temp['employment_imp']
         },
         "disability": {
-            "importance": request.args.get('diability_imp', default=0, type=int)
+            "importance": temp['diability_imp']
         },
         "education": {
-            "quantity": request.args.get('edu_val', default=1500.0, type=float),
-            "importance": request.args.get('edu_imp', default=0, type=int)
+            "quantity": temp['edu_val'],
+            "importance": temp['edu_imp']
         },
         "airport": {
-            "quantity": request.args.get('airport_val', default=0, type=int),
-            "importance": request.args.get('airport_imp', default=0, type=int)
+            "quantity": temp['airport_val'],
+            "importance": temp['airport_imp']
         },
         "transportation": {
-            "quantity": request.args.get('dist_val', default=0, type=int),
-            "importance": request.args.get('dist_imp', default=0, type=int)
+            "quantity": temp['dist_val'],
+            "importance": temp['dist_imp']
         },
         "in_tax": {
-            "quantity": request.args.get('income_val', default=0.0, type=float),
-            "importance": request.args.get('income_imp', default=0, type=int)
+            "quantity": temp['income_val'],
+            "importance": temp['income_imp']
         },
         "climate": {
-            "high": request.args.get('climate_high', default=0, type=int),
-            "low": request.args.get('climate_low', default=0, type=int),
-            "importance": request.args.get('climate_imp', default=0, type=int)
+            "high": temp['climate_high'],
+            "low": temp['climate_low'],
+            "importance": temp['climate_imp']
         }
     }
 
@@ -214,5 +218,5 @@ def get_city():
     return results
 
 if __name__ == '__main__':
-    config_app()
+    #config_app()
     app.run()
