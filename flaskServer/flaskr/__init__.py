@@ -67,7 +67,7 @@ def hello():
 
     query = """SELECT DISTINCT cities.city, cities.state, (1 - (cost_living.ind / 183)) * {} AS _cost,
                     1 / ((ABS(age.age - {}) / age.age) + 1) * {} AS _age,
-                   (1 - (crime.murders / 12.4)) * {} AS _crime,
+                   (1 - (crime.ind / 37801)) * {} AS _crime,
                    employment.employed / employment.civ_force * {} AS _employment,
                    employment.house_income / 130865 * {} AS _income,
                    (1 - (employment.travel_time / 35.9)) * {} AS _travel_time,
