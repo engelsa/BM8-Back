@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import json
 
 from flask import *
 
@@ -18,8 +19,8 @@ def config_app():
         pass
 
 
-@app.route('/hello')
-def hello():
+@app.route('/get-city')
+def get_city():
     parameters = {
         "cost": {
             "importance": 50
@@ -62,12 +63,12 @@ def hello():
         }
     }
 
-    connection = sqlite3.connect('../data.db')
+    connection = sqlite3.connect('../data_backup.db')
     cursor = connection.cursor()
 
     query = """SELECT DISTINCT cities.city, cities.state, (1 - (cost_living.ind / 183)) * {} AS _cost,
                     1 / ((ABS(age.age - {}) / age.age) + 1) * {} AS _age,
-                   (1 - (crime.ind / 37801)) * {} AS _crime,
+                   (1 - (crime.murders / 12.4)) * {} AS _crime,
                    employment.employed / employment.civ_force * {} AS _employment,
                    employment.house_income / 130865 * {} AS _income,
                    (1 - (employment.travel_time / 35.9)) * {} AS _travel_time,
@@ -113,9 +114,20 @@ def hello():
 
     cursor.execute(query)
     results = ""
+    cities_found = []
     for row in cursor.fetchall():
-        results += str(row) + "\n"
-    return results
+        # rows_found.append(row)
+        # if (row not in rows_found):
+        city = row[0]+" "+row[1]
+        if (city not in cities_found):
+            cities_found.append(city)
+            results += str(row) + "\n"
+    
+    results_json = {
+        "cities": cities_found[:10]
+    }
+
+    return json.dumps(results_json);
 
 
 if __name__ == '__main__':
