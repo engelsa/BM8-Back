@@ -76,9 +76,26 @@ def config_app():
     except OSError:
         pass
 
-def get_stats_city(city,state,cursor):
+def get_stats_city(city,state,cursor,query):
     state_abbrev = us_state_abbrev[state]
+
+    query = query.replace("PLACEHOLDER_CITY",city).replace("PLACEHOLDER_STATE_UPPER",state.upper()).replace("PLACEHOLDER_STATE_ABBREV",state_abbrev).replace("PLACEHOLDER_STATE",state)
+
+    # print(query)
+
+    cursor.execute(query)
+
+    # print(query)
+    query_result = cursor.fetchall()
+    if (len(query_result) != 0):
+        # print(query_result)
+        return query_result[0][0]
+    else:
+        # print(query_result)
+        return None
     
+
+
 
 @app.route('/get-city')
 def get_city():
@@ -171,26 +188,69 @@ def get_city():
                             str(parameters["climate"]["low"]),
                             str(parameters["climate"]["importance"]))
 
-    print(query)
-
     cursor.execute(query)
     results = ""
     cities_found = []
     for row in cursor.fetchall():
         # rows_found.append(row)
         # if (row not in rows_found):
-        city = row[0]+" "+row[1]
+        city = row[0]+","+row[1]
         if (city not in cities_found):
             cities_found.append(city)
             results += str(row) + "\n"
     
-    results_json = {
-        "cities": cities_found[:10]
+    queries = {
+        "cost": "SELECT ind FROM cost_living WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "age": "SELECT age FROM age WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "crime": "SELECT murders FROM crime WHERE state='PLACEHOLDER_STATE'",
+        "employment": "SELECT 1 - (employed / civ_force) FROM employment WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "income": "SELECT house_income FROM employment WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "travel_time": "SELECT travel_time FROM employment WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "disability": "SELECT score FROM disability WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "education": "SELECT spending FROM ed WHERE state='PLACEHOLDER_STATE'",
+        "airport": "SELECT dist FROM airport WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "transportation": "SELECT miles FROM transportation WHERE city='PLACEHOLDER_CITY' AND state_abbrev='PLACEHOLDER_STATE_ABBREV'",
+        "income_tax_high": "SELECT high FROM in_tax WHERE state='PLACEHOLDER_STATE_UPPER'",
+        "income_tax_low": "SELECT low FROM in_tax WHERE state='PLACEHOLDER_STATE_UPPER'",
+        "climate_high": "SELECT high FROM climate WHERE state='PLACEHOLDER_STATE' AND city='PLACEHOLDER_CITY'",
+        "climate_low": "SELECT low FROM climate WHERE state='PLACEHOLDER_STATE' AND city='PLACEHOLDER_CITY'",
+        "climate_precip": "SELECT low FROM climate WHERE state='PLACEHOLDER_STATE' AND city='PLACEHOLDER_CITY'"
     }
 
-    return json.dumps(results_json);
+    cities = []
+    states = []
+    for city_state in cities_found[:10]:
+        city,state = city_state.split(",")
+        cities.append(city)
+        states.append(state)
+    
+    results_json = {
+        "cities": cities,
+        "states": states,
+        "states_abbrev": [us_state_abbrev[state] for state in states],
+        "cost": [get_stats_city(city,state,cursor,queries["cost"]) for city,state in zip(cities,states)],
+        "age": [get_stats_city(city,state,cursor,queries["age"]) for city,state in zip(cities,states)],
+        "crime": [get_stats_city(city,state,cursor,queries["crime"]) for city,state in zip(cities,states)],
+        "employment": [get_stats_city(city,state,cursor,queries["employment"]) for city,state in zip(cities,states)],
+        "income": [get_stats_city(city,state,cursor,queries["income"]) for city,state in zip(cities,states)],
+        "travel_time": [get_stats_city(city,state,cursor,queries["travel_time"]) for city,state in zip(cities,states)],
+        "disability": [get_stats_city(city,state,cursor,queries["disability"]) for city,state in zip(cities,states)],
+        "education": [get_stats_city(city,state,cursor,queries["education"]) for city,state in zip(cities,states)],
+        "airport": [get_stats_city(city,state,cursor,queries["airport"]) for city,state in zip(cities,states)],
+        "transportation": [get_stats_city(city,state,cursor,queries["transportation"]) for city,state in zip(cities,states)],
+        "income_tax_high": [get_stats_city(city,state,cursor,queries["income_tax_high"]) for city,state in zip(cities,states)],
+        "income_tax_low": [get_stats_city(city,state,cursor,queries["income_tax_low"]) for city,state in zip(cities,states)],
+        "climate_high": [get_stats_city(city,state,cursor,queries["climate_high"]) for city,state in zip(cities,states)],
+        "climate_low": [get_stats_city(city,state,cursor,queries["climate_low"]) for city,state in zip(cities,states)],
+        "climate_precip": [get_stats_city(city,state,cursor,queries["climate_precip"]) for city,state in zip(cities,states)]
+    }
+
+
+    # print(get_stats_city("Phoenix","Arizona",cursor,"SELECT * FROM in_tax"))
+
+    return json.dumps(results_json,indent = 2, separators=(',', ': '));
 
 
 if __name__ == '__main__':
     config_app()
-    app.run()
+    app.run(debug=True)
