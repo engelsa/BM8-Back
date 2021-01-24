@@ -1,7 +1,9 @@
 import os
 import sqlite3
 import json
+import ssl
 
+from flask_cors import CORS
 from flask import *
 
 app = Flask(__name__, instance_relative_config=True)
@@ -102,7 +104,7 @@ def get_city():
     parameters = {
         "cost": {
             "quantity": temp['cost_val'],
-            "importance": temp'cost_imp']
+            "importance": temp['cost_imp']
         },
         "age": {
             "quantity": temp['age_val'],
@@ -124,7 +126,7 @@ def get_city():
             "importance": temp['employment_imp']
         },
         "disability": {
-            "importance": temp['diability_imp']
+            "importance": temp['disability_imp']
         },
         "education": {
             "quantity": temp['edu_val'],
@@ -218,5 +220,6 @@ def get_city():
     return results
 
 if __name__ == '__main__':
-    #config_app()
+    config_app()
+    CORS(app)
     app.run()
